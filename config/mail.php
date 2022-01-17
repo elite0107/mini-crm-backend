@@ -36,7 +36,7 @@ return [
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
-            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+            'host' => env('MAIL_HOST', 'smtp.mailtrap.io'),
             'port' => env('MAIL_PORT', 587),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
@@ -74,8 +74,9 @@ return [
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
-                'smtp',
-                'log',
+                'mailgun',
+                'postmark',
+                'sendmail'
             ],
         ],
     ],
@@ -92,9 +93,10 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'mini_crm@test.com'),
+        'name' => env('MAIL_FROM_NAME', 'MINI CRM'),
     ],
+    'reply_to' => ['address' => 'toptalent0107@gmail.com', 'name' => 'MINI CRM'],
 
     /*
     |--------------------------------------------------------------------------
