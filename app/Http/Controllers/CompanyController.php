@@ -11,7 +11,7 @@ use App\Models\Company;
 class CompanyController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource by pagination.
      *
      * @return \Illuminate\Http\Response
      */
@@ -20,7 +20,21 @@ class CompanyController extends Controller
         //
         return response()->json(([
             'message' => 'Operation success',
-            'companies' => Company::all()
+            'companies' => Company::paginate(10)
+        ]));
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function all()
+    {
+        //
+        return response()->json(([
+            'message' => 'Operation success',
+            'companies' => Company::all(),
         ]));
     }
 
@@ -50,7 +64,7 @@ class CompanyController extends Controller
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
-
+        
         $name = $request->file('logo')->getClientOriginalName();
         $path = $request->file('logo')->store('public');
 
@@ -63,7 +77,7 @@ class CompanyController extends Controller
 
         return response()->json([
             'message' => 'Company successfully created',
-            'user' => $company
+            'company' => $company
         ], 200);
     }
 
@@ -106,18 +120,25 @@ class CompanyController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|between:2,100',
-            'email' => 'string|email|max:100|unique:companies',
-            'logo' => 'required|string',
+            'email' => 'string|email|max:100',
+            'logo' => 'required',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
+        
+        if ($request->file('logo')) {
+            $name = $request->file('logo')->getClientOriginalName();
+            $path = $request->file('logo')->store('public');
+        } else {
+            $path = $request->logo;
+        }
 
-        $company = Company::find('id', $id);
+        $company = Company::find($id);
         $company->name = $request->name;
         $company->email = $request->email;
-        $company->logo = $request->logo;
+        $company->logo = $path;
         $company->website = $request->website;
         $company->save();
 
