@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Validator;
 
 // import model
 use App\Models\Company;
+
+// import mail
+use App\Mail\OrderShipped;
 
 class CompanyController extends Controller
 {
@@ -74,6 +78,8 @@ class CompanyController extends Controller
             'logo' => $path,
             'website' => $request->website
         ]);
+
+        Mail::to($request->user())->send(new OrderShipped());
 
         return response()->json([
             'message' => 'Company successfully created',
