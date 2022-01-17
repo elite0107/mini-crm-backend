@@ -35,9 +35,10 @@ Route::group([
 });
 
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'jwt.verify',
     'prefix' => 'admin'
 ], function() {
+    Route::get('company/all', [CompanyController::class, 'all']);
     Route::resource('company', CompanyController::class);
     Route::resource('employee', EmployeeController::class);
 });

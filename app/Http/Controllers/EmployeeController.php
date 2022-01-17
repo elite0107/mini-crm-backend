@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Validator;
+
+// import model
+use App\Models\Employee;
+use App\Models\Company;
 
 class EmployeeController extends Controller
 {
-    public function __construct() {
-        $this->middleware('auth:api');
-    }
-    
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +18,10 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(([
+            'message' => 'Operation success',
+            'employees' => Employee::with("companies")->paginate(10)
+        ]));
     }
 
     /**
@@ -38,7 +42,28 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|between:2,100',
+            'last_name' => 'required|string|between:2,100',
+            'company' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+        
+        $employee = Employee::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'company' => $request->company,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        return response()->json([
+            'message' => 'Employee successfully created',
+            'employee' => $employee
+        ], 200);
     }
 
     /**
@@ -49,7 +74,10 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json([
+            'message' => 'Operation success',
+            'employee'=> Employee::where('id', $id)->first()
+        ], 200);
     }
 
     /**
@@ -60,7 +88,10 @@ class EmployeeController extends Controller
      */
     public function edit($id)
     {
-        //
+        return response()->json([
+            'message' => 'Operation success',
+            'employee'=> Employee::where('id', $id)->first()
+        ], 200);
     }
 
     /**
@@ -72,7 +103,28 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|between:2,100',
+            'last_name' => 'required|string|between:2,100',
+            'company' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        $employee = Employee::find($id);
+        $employee->first_name = $request->first_name;
+        $employee->last_name = $request->last_name;
+        $employee->company = $request->company;
+        $employee->email = $request->email;
+        $employee->phone = $request->phone;
+        $employee->save();
+
+        return response()->json([
+            'message'=> 'Employee successfully Updated',
+            'employee' => $employee
+        ], 200);
     }
 
     /**
@@ -83,6 +135,11 @@ class EmployeeController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $employee = Employee::destroy($id);
+
+        return response()->json([
+            'message' => 'Employee successfully destroyed',
+            'employee' => $employee
+        ]);
     }
 }
